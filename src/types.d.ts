@@ -1,3 +1,12 @@
+type ResponseType = 'json' | 'view' | 'redirect' | 'image';
+
+type ErrorResponse = {
+	errors: Array<{
+		title: string;
+		detail: string;
+	}>;
+};
+
 type UnsplashResponse = {
 	id: string;
 	slug: string;
