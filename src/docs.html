@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Image API</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				line-height: 1.6;
+				margin: 0;
+				padding: 0;
+				background: #f4f4f9;
+				color: #333;
+			}
+			header {
+				background: #4caf50;
+				color: #fff;
+				padding: 1rem;
+				text-align: center;
+			}
+			header h1 {
+				margin: 0;
+				color: #fff;
+			}
+			nav {
+				background: #333;
+				padding: 1rem;
+				text-align: center;
+			}
+			nav a {
+				color: #fff;
+				margin: 0 1rem;
+				text-decoration: none;
+				font-weight: bold;
+			}
+			nav a:hover {
+				text-decoration: underline;
+			}
+			main {
+				max-width: 1200px;
+				margin: 2rem auto;
+				padding: 1rem;
+				background: #fff;
+				border-radius: 8px;
+				box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+			}
+			section {
+				margin-bottom: 2rem;
+			}
+			code {
+				background: #f4f4f9;
+				padding: 0.2rem 0.4rem;
+				border-radius: 4px;
+			}
+			h1,
+			h2,
+			h3 {
+				color: #4caf50;
+			}
+			footer {
+				text-align: center;
+				padding: 1rem;
+				background: #333;
+				color: #fff;
+			}
+		</style>
+	</head>
+	<body>
+		<header>
+			<h1>Image API</h1>
+		</header>
+		<nav>
+			<a href="#usage">Usage</a>
+			<a href="#contact">Contact</a>
+		</nav>
+		<main>
+			<section id="usage">
+				<h2>Usage: Unsplash</h2>
+
+				<p>
+					You can use all the available endpoints to get images from Unsplash by adding the <code>/unsplash/</code> prefix to the endpoint.
+				</p>
+
+				<h3>Get a random image</h3>
+				<p>
+					<code>GET /unsplash/photos/random</code>
+				</p>
+				<p>Get a random photo from Unsplash.</p>
+				<p>
+					Parameters: check in the unsplash API docs from
+					<a href="https://unsplash.com/documentation#photos">here</a>
+				</p>
+			</section>
+
+			<section id="contact">
+				<h2>Contact</h2>
+				<p>For further assistance, please contact me from <a href="http://msar.me/contact">here</a>.</p>
+			</section>
+		</main>
+		<footer>
+			<p>&copy; Documentation. All rights reserved.</p>
+		</footer>
+	</body>
+</html>
