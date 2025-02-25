@@ -1,4 +1,5 @@
 import docs from './docs.html';
+import icon from './favicon.png';
 
 /**
  * @typedef {Object} Env
@@ -12,8 +13,17 @@ export default {
 	 * @returns {Promise<Response>}
 	 */
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+		const url = new URL(request.url);
+
+		if (url.pathname === '/favicon.ico') {
+			return new Response(icon, {
+				headers: {
+					'content-type': 'image/png',
+				},
+			});
+		}
+
 		try {
-			const url = new URL(request.url);
 			const preferredResponseType = url.searchParams.get('type') as ResponseType;
 			url.searchParams.delete('type');
 
