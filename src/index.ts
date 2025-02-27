@@ -1,5 +1,5 @@
 import docs from './docs.html';
-import icon from './favicon.png';
+import { getUnsplashImage, checkCorrectUnsplashEndpoint } from './utils';
 
 /**
  * @typedef {Object} Env
@@ -14,14 +14,6 @@ export default {
 	 */
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 		const url = new URL(request.url);
-
-		if (url.pathname === '/favicon.ico') {
-			return new Response(icon, {
-				headers: {
-					'content-type': 'image/png',
-				},
-			});
-		}
 
 		try {
 			const preferredResponseType = url.searchParams.get('type') as ResponseType;
@@ -44,7 +36,7 @@ export default {
 
 				url.searchParams.set('client_id', env.UNSPLASH_ACCESS_KEY);
 
-				return getUnsplashImage(path, url.searchParams, preferredResponseType);
+				return getUnsplashImage(path, url.searchParams, preferredResponseType ?? 'image');
 			}
 
 			return new Response(docs, {
@@ -61,50 +53,4 @@ export default {
 			});
 		}
 	},
-};
-
-const getUnsplashImage = async (path: string, params: URLSearchParams, type: ResponseType) => {
-	const unsplashResponse = await fetch(`https://api.unsplash.com/${path}?${params.toString()}`);
-	const unsplashResult: UnsplashResponse | ErrorResponse = await unsplashResponse.json();
-
-	if (unsplashResult?.errors) {
-		return new Response(JSON.stringify(unsplashResult), {
-			status: 400,
-			headers: {
-				'content-type': 'application/json',
-			},
-		});
-	}
-
-	if (type === 'json') {
-		return new Response(JSON.stringify(unsplashResult), {
-			headers: {
-				'content-type': 'application/json',
-			},
-		});
-	}
-
-	if (type === 'view') {
-		return Response.redirect(unsplashResult.links.html, 301);
-	}
-
-	if (type === 'redirect') {
-		return Response.redirect(unsplashResult.urls.full, 301);
-	}
-
-	const unsplashImageResponse = await fetch(unsplashResult.urls.regular);
-	const unsplashImageBuffer = await unsplashImageResponse.arrayBuffer();
-	const unsplashImage = new Uint8Array(unsplashImageBuffer);
-
-	return new Response(unsplashImage, {
-		headers: {
-			'content-type': unsplashImageResponse.headers.get('content-type') || 'image/jpeg',
-		},
-	});
-};
-
-const checkCorrectUnsplashEndpoint = (path: string): boolean => {
-	const unsplashEndpoints = ['/unsplash/photos', '/unsplash/collections', '/unsplash/users', '/unsplash/search'];
-
-	return unsplashEndpoints.some((endpoint) => path.startsWith(endpoint));
 };

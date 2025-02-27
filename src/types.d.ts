@@ -1,3 +1,8 @@
+declare module '*.html' {
+	const content: string;
+	export default content;
+}
+
 type ResponseType = 'json' | 'view' | 'redirect' | 'image';
 
 type ErrorResponse = {
@@ -7,7 +12,23 @@ type ErrorResponse = {
 	}>;
 };
 
-type UnsplashResponse = {
+type UrlType = 'raw' | 'full' | 'regular' | 'small' | 'thumb' | 'small_s3';
+
+type UnsplashResponse = UnsplashImage | UnsplashImages | UnsplashImageCollection;
+
+type UnsplashImages = {
+	results: UnsplashImage[];
+	total: number;
+	total_pages: number;
+};
+
+type UnsplashImageCollection = {
+	results: UnsplashImage[];
+	total: number;
+	total_pages: number;
+};
+
+type UnsplashImage = {
 	id: string;
 	slug: string;
 	alternative_slugs: Record<string, string>;
@@ -21,14 +42,7 @@ type UnsplashResponse = {
 	description: string | null;
 	alt_description: string | null;
 	breadcrumbs: any[];
-	urls: {
-		raw: string;
-		full: string;
-		regular: string;
-		small: string;
-		thumb: string;
-		small_s3: string;
-	};
+	urls: Record<UrlType, string>;
 	links: {
 		self: string;
 		html: string;

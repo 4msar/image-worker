@@ -74,14 +74,15 @@
 		<nav>
 			<a href="#usage">Usage</a>
 			<a href="#contact">Contact</a>
-			<a href="http://github.com/4msar/image-worker">Github</a>
+			<a target="_blank" href="http://github.com/4msar/image-worker">Github</a>
 		</nav>
 		<main>
 			<section id="usage">
 				<h2>Usage: Unsplash</h2>
 
 				<p>
-					You can use all the available endpoints to get images from Unsplash by adding the <code>/unsplash/</code> prefix to the endpoint.
+					You can use all the available endpoints to get images from Unsplash by adding the
+					<code>/unsplash/</code> prefix to the endpoint.
 				</p>
 
 				<h3>Get a random image</h3>
@@ -91,24 +92,40 @@
 				<p>Get a random photo from Unsplash.</p>
 				<p>
 					Parameters: check in the unsplash API docs from
-					<a href="https://unsplash.com/documentation#photos">here</a>
+					<a target="_blank" href="https://unsplash.com/documentation#photos">here</a>
 				</p>
 
 				<hr />
 				<h2>Common Response Type</h2>
 
-				<p>You can easily get the response as your desired format by adding the <code>type</code> parameter to the request.</p>
+				<p>
+					You can easily get the response as your desired format by adding the <code>type</code> parameter to
+					the request.
+				</p>
 				<ul>
 					<li><code>type=json</code>: Get the response in JSON format.</li>
-					<li><code>type=image</code>: Get the response in image format.</li>
+					<li><code>type=image</code>: Get the response in image format. <b>(Default)</b></li>
 					<li><code>type=view</code>: View the image in the browser.</li>
 					<li><code>type=redirect</code>: Redirect to the image URL.</li>
+				</ul>
+
+				<p>You can also provide the <code>size</code> to get the image on specific size.</p>
+				<ul>
+					<li><code>size=regular</code>: Get the regular size image <b>(Default)</b></li>
+					<li><code>size=raw</code>: Get the raw size image</li>
+					<li><code>size=small</code>: Get the small size image</li>
+					<li><code>size=thumb</code>: Get the thumbnail size image</li>
+					<li><code>size=full</code>: Get the full size image</li>
+					<li><code>size=small_s3</code>: Get the most small size image</li>
 				</ul>
 			</section>
 
 			<section id="contact">
 				<h2>Contact</h2>
-				<p>For further assistance, please contact me from <a href="http://msar.me/contact">here</a>.</p>
+				<p>
+					For further assistance, please contact me from
+					<a target="_blank" href="http://msar.me/contact">here</a>.
+				</p>
 			</section>
 		</main>
 		<footer>
