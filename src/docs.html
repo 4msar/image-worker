@@ -1,9 +1,12 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<meta name="description" content="A tiny image API that proxies Unsplash and returns images as JSON, raw image, redirect or an in-browser view." />
+		<meta
+			name="description"
+			content="A tiny image API that proxies free photo providers and returns images as JSON, raw image, redirect or an in-browser view."
+		/>
 		<title>Image API</title>
 		<link rel="shortcut icon" href="favicon.png" type="image/x-icon" />
 		<style>
@@ -19,7 +22,8 @@
 				--code-bg: #18181b;
 				--code-text: #e4e4e7;
 				--radius: 12px;
-				--font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+				--font-sans:
+					ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 				--font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
 			}
 
@@ -346,6 +350,64 @@
 				text-decoration: none;
 			}
 
+			/* Provider cards */
+			.providers {
+				display: grid;
+				gap: 16px;
+				margin-top: 16px;
+			}
+
+			.provider {
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: var(--radius);
+				padding: 20px;
+			}
+
+			.provider-head {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				flex-wrap: wrap;
+				margin-bottom: 8px;
+			}
+
+			.provider h3 {
+				margin: 0;
+			}
+
+			.provider p {
+				color: var(--muted);
+				margin-bottom: 12px;
+			}
+
+			.provider .table-wrap {
+				margin-bottom: 12px;
+			}
+
+			.access {
+				font-size: 11px;
+				font-weight: 600;
+				padding: 2px 8px;
+				border-radius: 999px;
+				color: var(--accent);
+				background: var(--accent-soft);
+			}
+
+			.access.api {
+				color: var(--muted);
+				background: var(--surface-2);
+				border: 1px solid var(--border);
+			}
+
+			.provider-links {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px 16px;
+				font-family: var(--font-mono);
+				font-size: 13px;
+			}
+
 			footer {
 				border-top: 1px solid var(--border);
 				padding: 32px 0 48px;
@@ -388,11 +450,26 @@
 		<header class="topbar">
 			<div class="container">
 				<a class="brand" href="/">
-					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" /></svg>
+					<svg
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						aria-hidden="true"
+					>
+						<rect x="3" y="3" width="18" height="18" rx="4" />
+						<circle cx="9" cy="9" r="2" />
+						<path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" />
+					</svg>
 					Image API
 				</a>
 				<nav class="nav">
 					<a href="#usage">Usage</a>
+					<a href="#providers">Providers</a>
 					<a href="#response">Response</a>
 					<a href="#contact">Contact</a>
 					<a target="_blank" rel="noopener" href="https://github.com/4msar/image-worker">GitHub</a>
@@ -402,41 +479,103 @@
 
 		<main class="container">
 			<div class="hero">
-				<span class="badge">Unsplash proxy</span>
+				<span class="badge">{{PROVIDER_COUNT}} image providers</span>
 				<h1>Beautiful images,<br />one simple URL.</h1>
 				<p>
-					Fetch photos from Unsplash and get them back as an image, JSON, a redirect, or a browser view. No API
-					key needed on your side.
+					Fetch photos from {{PROVIDER_NAMES}} and get them back as an image, JSON, a redirect, or a browser
+					view. No API key needed on your side.
 				</p>
 			</div>
 
 			<section id="usage">
 				<h2>Usage</h2>
 				<p class="lead">
-					Every Unsplash API endpoint is available. Add the <code>/unsplash/</code> prefix to the endpoint path.
+					Every provider has the same routes. Replace <code>{provider}</code> with a provider id from the
+					<a href="#providers">list below</a>, or get the list as JSON from <code>/providers</code>.
 				</p>
 
-				<h3>Get a random image</h3>
-				<div class="endpoint">
-					<span class="method">GET</span>
-					<span>/unsplash/photos/random</span>
+				<div class="table-wrap">
+					<table>
+						<thead>
+							<tr>
+								<th>Route</th>
+								<th>Description</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><code>/{provider}/random</code></td>
+								<td>A random image.</td>
+							</tr>
+							<tr>
+								<td><code>/{provider}/search</code></td>
+								<td>Search results as JSON, in the same shape for every provider.</td>
+							</tr>
+							<tr>
+								<td><code>/{provider}/photos/:id</code></td>
+								<td>A single image by its provider id.</td>
+							</tr>
+							<tr>
+								<td><code>/providers</code></td>
+								<td>The available providers as JSON.</td>
+							</tr>
+						</tbody>
+					</table>
 				</div>
-				<p>
-					Returns a random photo from Unsplash. All query parameters are passed through; see the
-					<a target="_blank" rel="noopener" href="https://unsplash.com/documentation#photos">Unsplash API docs</a>
-					for the full list.
+
+				<h3>Query parameters</h3>
+				<div class="table-wrap">
+					<table>
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Description</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><code>query</code></td>
+								<td>Search term. <code>q</code> works too.</td>
+							</tr>
+							<tr>
+								<td><code>orientation</code></td>
+								<td><code>landscape</code>, <code>portrait</code> or <code>squarish</code>.</td>
+							</tr>
+							<tr>
+								<td><code>page</code><span class="default">1</span></td>
+								<td>Results page, for <code>/search</code>.</td>
+							</tr>
+							<tr>
+								<td><code>per_page</code><span class="default">10</span></td>
+								<td>
+									Results per page, for <code>/search</code>. Each provider caps it at its own limit.
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<div class="codeblock">
+					<button class="copy" type="button">Copy</button
+					><span class="c"># Random landscape photo, small size, as JSON</span>
+					/{{EXAMPLE}}/random?query=nature&amp;orientation=landscape&amp;size=small&amp;type=json
+
+					<span class="c"># Drop it straight into an &lt;img&gt; tag</span>
+					&lt;img src="/{{EXAMPLE}}/random?query=mountains" /&gt;
+				</div>
+			</section>
+
+			<section id="providers">
+				<h2>Providers</h2>
+				<p class="lead">
+					Open providers need no key. API providers appear here once their key is configured on the worker.
 				</p>
-
-				<div class="codeblock"><button class="copy" type="button">Copy</button><span class="c"># Random landscape photo, small size, as JSON</span>
-/unsplash/photos/random?query=nature&amp;orientation=landscape&amp;size=small&amp;type=json
-
-<span class="c"># Drop it straight into an &lt;img&gt; tag</span>
-&lt;img src="/unsplash/photos/random?query=mountains" /&gt;</div>
+				{{PROVIDERS}}
 			</section>
 
 			<section id="response">
 				<h2>Response options</h2>
-				<p class="lead">These parameters work on every endpoint.</p>
+				<p class="lead">These parameters work on <code>/random</code> and <code>/photos/:id</code>.</p>
 
 				<h3>Format: <code>type</code></h3>
 				<div class="table-wrap">
@@ -458,7 +597,7 @@
 							</tr>
 							<tr>
 								<td><code>view</code></td>
-								<td>Shows the image in the browser.</td>
+								<td>Opens the image page on the provider&rsquo;s site.</td>
 							</tr>
 							<tr>
 								<td><code>redirect</code></td>
@@ -484,7 +623,7 @@
 							</tr>
 							<tr>
 								<td><code>raw</code></td>
-								<td>Raw, unprocessed image.</td>
+								<td>Original, unprocessed image.</td>
 							</tr>
 							<tr>
 								<td><code>full</code></td>
@@ -498,10 +637,6 @@
 								<td><code>thumb</code></td>
 								<td>Thumbnail size image.</td>
 							</tr>
-							<tr>
-								<td><code>small_s3</code></td>
-								<td>The smallest available size.</td>
-							</tr>
 						</tbody>
 					</table>
 				</div>
@@ -511,7 +646,9 @@
 				<h2>Contact</h2>
 				<div class="card">
 					<p>Questions or need help? Get in touch.</p>
-					<a class="button" target="_blank" rel="noopener" href="https://msar.me/contact?open=form">Contact me &rarr;</a>
+					<a class="button" target="_blank" rel="noopener" href="https://msar.me/contact?open=form"
+						>Contact me &rarr;</a
+					>
 				</div>
 			</section>
 		</main>

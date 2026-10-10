@@ -1,56 +1,46 @@
-import docs from './docs.html';
-import { getUnsplashImage, checkCorrectUnsplashEndpoint } from './utils';
+import { Hono } from 'hono';
+import { HTTPException } from 'hono/http-exception';
+import { renderDocs } from './docs';
+import { availableProviders, providers } from './providers';
+import type { AppEnv } from './providers/types';
+import { providerRoutes } from './routes';
 
-/**
- * @typedef {Object} Env
- */
+const app = new Hono<AppEnv>();
 
-export default {
-	/**
-	 * @param {Request} request
-	 * @param {Env & Record<string, string>} env
-	 * @param {ExecutionContext} ctx
-	 * @returns {Promise<Response>}
-	 */
-	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-		const url = new URL(request.url);
+app.use('*', async (c, next) => {
+	if (c.req.method !== 'GET' && c.req.method !== 'HEAD') {
+		return c.text('Method Not Allowed', 405);
+	}
+	await next();
+});
 
-		try {
-			const preferredResponseType = url.searchParams.get('type') as ResponseType;
-			url.searchParams.delete('type');
+app.get('/', (c) => c.html(renderDocs(availableProviders(c.env))));
 
-			if (request.method !== 'GET') {
-				return new Response('Method Not Allowed', {
-					status: 405,
-					headers: {
-						'content-type': 'text/plain',
-					},
-				});
-			}
+app.get('/providers', (c) =>
+	c.json(
+		availableProviders(c.env).map(({ id, name, access, homepage, description }) => ({
+			id,
+			name,
+			access,
+			homepage,
+			description,
+			routes: [`/${id}/random`, `/${id}/search`, `/${id}/photos/:id`],
+		})),
+	),
+);
 
-			if (url.pathname.startsWith('/unsplash/') && checkCorrectUnsplashEndpoint(url.pathname)) {
-				let path = url.pathname;
+for (const provider of providers) {
+	app.route(`/${provider.id}`, providerRoutes(provider));
+}
 
-				// Remove the /unsplash/ prefix from start of path
-				path = path.replace('/unsplash/', '');
+app.notFound((c) => c.json({ error: 'Not Found' }, 404));
 
-				url.searchParams.set('client_id', env.UNSPLASH_ACCESS_KEY);
+app.onError((error, c) => {
+	if (error instanceof HTTPException) {
+		return c.json({ error: error.message }, error.status);
+	}
+	console.error(error);
+	return c.json({ error: 'Internal Server Error' }, 500);
+});
 
-				return getUnsplashImage(path, url.searchParams, preferredResponseType ?? 'image');
-			}
-
-			return new Response(docs, {
-				headers: {
-					'content-type': 'text/html',
-				},
-			});
-		} catch (error) {
-			return new Response(JSON.stringify(error), {
-				status: 500,
-				headers: {
-					'content-type': 'application/json',
-				},
-			});
-		}
-	},
-};
+export default app;

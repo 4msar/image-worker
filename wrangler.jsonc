@@ -6,6 +6,7 @@
 	"observability": {
 		"enabled": true
 	}
-	// Secrets: set UNSPLASH_ACCESS_KEY with `npx wrangler secret put UNSPLASH_ACCESS_KEY`.
-	// For local dev, copy .dev.vars.example to .dev.vars and fill in the key.
+	// Optional secrets, one per API provider: UNSPLASH_ACCESS_KEY, PEXELS_API_KEY, PIXABAY_API_KEY.
+	// Set them with `npx wrangler secret put <NAME>`; a provider without its key is hidden.
+	// For local dev, copy .dev.vars.example to .dev.vars and fill in the keys.
 }

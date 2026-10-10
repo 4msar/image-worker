@@ -1,1 +1,4 @@
+# API providers are optional: a provider whose key is empty is hidden from the docs and its routes return 404.
 UNSPLASH_ACCESS_KEY=your-unsplash-access-key
+PEXELS_API_KEY=your-pexels-api-key
+PIXABAY_API_KEY=your-pixabay-api-key
