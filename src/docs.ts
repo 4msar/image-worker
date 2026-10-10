@@ -26,10 +26,34 @@ const renderProvider = (provider: Provider) => `
 					</div>
 				</article>`;
 
+const escapeAttribute = (value: string) =>
+	value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+
+const jsonLd = (origin: string, description: string, providers: Provider[]) =>
+	JSON.stringify({
+		'@context': 'https://schema.org',
+		'@type': 'WebAPI',
+		name: 'Image API',
+		description,
+		url: `${origin}/`,
+		documentation: `${origin}/`,
+		isAccessibleForFree: true,
+		provider: { '@type': 'Person', name: 'Saiful Alam Rakib', url: 'https://msar.me' },
+		mentions: providers.map((provider) => ({ '@type': 'WebSite', name: provider.name, url: provider.homepage })),
+	}).replaceAll('<', '\\u003c');
+
 /** Docs page listing only the providers that are available. Provider fields are trusted, static HTML. */
-export const renderDocs = (providers: Provider[]): string =>
-	template
+export const renderDocs = (providers: Provider[], origin: string): string => {
+	const names = listNames(providers.map((provider) => provider.name));
+	const description = `Free image API: fetch photos from ${names} as an image, JSON, redirect or browser view with one simple URL. No API key needed.`;
+
+	return template
+		.replaceAll('{{ORIGIN}}', escapeAttribute(origin))
+		.replaceAll('{{DESCRIPTION}}', escapeAttribute(description))
+		.replaceAll('{{PROVIDER_KEYWORDS}}', escapeAttribute(providers.map((provider) => provider.name).join(', ')))
+		.replace('{{JSON_LD}}', jsonLd(origin, description, providers))
 		.replaceAll('{{PROVIDER_COUNT}}', String(providers.length))
-		.replaceAll('{{PROVIDER_NAMES}}', listNames(providers.map((provider) => provider.name)))
+		.replaceAll('{{PROVIDER_NAMES}}', names)
 		.replaceAll('{{EXAMPLE}}', providers[0]?.id ?? 'picsum')
 		.replace('{{PROVIDERS}}', `<div class="providers">${providers.map(renderProvider).join('')}</div>`);
+};

@@ -19,6 +19,22 @@ describe('image worker', () => {
 		expect(await response.text()).toContain('<html');
 	});
 
+	it('renders SEO tags for the request origin', async () => {
+		const html = await (await exports.default.fetch('https://images.example.com/')).text();
+		expect(html).toContain('<link rel="canonical" href="https://images.example.com/" />');
+		expect(html).toContain('<meta property="og:url" content="https://images.example.com/" />');
+		expect(html).toMatch(
+			/<meta name="description" content="Free image API: fetch photos from Unsplash, Lorem Picsum and Openverse/,
+		);
+		const ld = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)![1]);
+		expect(ld['@type']).toBe('WebAPI');
+	});
+
+	it('serves robots.txt that keeps crawlers on the docs page', async () => {
+		const response = await exports.default.fetch('https://example.com/robots.txt');
+		expect(await response.text()).toBe('User-agent: *\nAllow: /$\nDisallow: /\n');
+	});
+
 	it('rejects non-GET requests (integration style)', async () => {
 		const response = await exports.default.fetch('https://example.com/unsplash/photos/random', { method: 'POST' });
 		expect(response.status).toBe(405);

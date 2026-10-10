@@ -14,7 +14,10 @@ app.use('*', async (c, next) => {
 	await next();
 });
 
-app.get('/', (c) => c.html(renderDocs(availableProviders(c.env))));
+app.get('/', (c) => c.html(renderDocs(availableProviders(c.env), new URL(c.req.url).origin)));
+
+// Let crawlers index the docs, but keep them off the image routes so they don't burn API quota.
+app.get('/robots.txt', (c) => c.text('User-agent: *\nAllow: /$\nDisallow: /\n'));
 
 app.get('/providers', (c) =>
 	c.json(

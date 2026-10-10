@@ -3,11 +3,33 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Image API · Free photos from one simple URL</title>
+		<meta name="description" content="{{DESCRIPTION}}" />
 		<meta
-			name="description"
-			content="A tiny image API that proxies free photo providers and returns images as JSON, raw image, redirect or an in-browser view."
+			name="keywords"
+			content="image api, free photos, random image, stock photos, placeholder images, {{PROVIDER_KEYWORDS}}"
 		/>
-		<title>Image API</title>
+		<meta name="robots" content="index, follow" />
+		<meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)" />
+		<link rel="canonical" href="{{ORIGIN}}/" />
+
+		<!-- Open Graph -->
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Image API" />
+		<meta property="og:title" content="Image API · Free photos from one simple URL" />
+		<meta property="og:description" content="{{DESCRIPTION}}" />
+		<meta property="og:url" content="{{ORIGIN}}/" />
+		<meta property="og:locale" content="en_US" />
+
+		<!-- Twitter -->
+		<meta name="twitter:card" content="summary" />
+		<meta name="twitter:title" content="Image API · Free photos from one simple URL" />
+		<meta name="twitter:description" content="{{DESCRIPTION}}" />
+
+		<script type="application/ld+json">
+			{{JSON_LD}}
+		</script>
 		<link rel="shortcut icon" href="favicon.png" type="image/x-icon" />
 		<style>
 			:root {
