@@ -1,8 +1,11 @@
 {
+	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "unsplash-worker",
 	"main": "src/index.ts",
-	"compatibility_date": "2025-01-01",
+	"compatibility_date": "2026-10-01",
 	"observability": {
 		"enabled": true
 	}
+	// Secrets: set UNSPLASH_ACCESS_KEY with `npx wrangler secret put UNSPLASH_ACCESS_KEY`.
+	// For local dev, copy .dev.vars.example to .dev.vars and fill in the key.
 }
