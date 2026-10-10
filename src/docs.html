@@ -3,133 +3,536 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="A tiny image API that proxies Unsplash and returns images as JSON, raw image, redirect or an in-browser view." />
 		<title>Image API</title>
 		<link rel="shortcut icon" href="favicon.png" type="image/x-icon" />
 		<style>
+			:root {
+				--bg: #fafafa;
+				--surface: #ffffff;
+				--surface-2: #f4f4f5;
+				--border: #e4e4e7;
+				--text: #18181b;
+				--muted: #71717a;
+				--accent: #16a34a;
+				--accent-soft: #dcfce7;
+				--code-bg: #18181b;
+				--code-text: #e4e4e7;
+				--radius: 12px;
+				--font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+				--font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+			}
+
+			@media (prefers-color-scheme: dark) {
+				:root {
+					--bg: #09090b;
+					--surface: #111113;
+					--surface-2: #1c1c1f;
+					--border: #27272a;
+					--text: #f4f4f5;
+					--muted: #a1a1aa;
+					--accent: #4ade80;
+					--accent-soft: rgba(74, 222, 128, 0.12);
+					--code-bg: #000000;
+				}
+			}
+
+			*,
+			*::before,
+			*::after {
+				box-sizing: border-box;
+			}
+
+			html {
+				scroll-behavior: smooth;
+				scroll-padding-top: 80px;
+			}
+
 			body {
-				font-family: Arial, sans-serif;
-				line-height: 1.6;
 				margin: 0;
-				padding: 0;
-				background: #f4f4f9;
-				color: #333;
+				font-family: var(--font-sans);
+				font-size: 16px;
+				line-height: 1.65;
+				background: var(--bg);
+				color: var(--text);
+				-webkit-font-smoothing: antialiased;
 			}
-			header {
-				background: #4caf50;
-				color: #fff;
-				padding: 1rem;
-				text-align: center;
-			}
-			header h1 {
-				margin: 0;
-				color: #fff;
-			}
-			nav {
-				background: #333;
-				padding: 1rem;
-				text-align: center;
-			}
-			nav a {
-				color: #fff;
-				margin: 0 1rem;
+
+			a {
+				color: var(--accent);
 				text-decoration: none;
-				font-weight: bold;
 			}
-			nav a:hover {
+
+			a:hover {
 				text-decoration: underline;
+				text-underline-offset: 3px;
 			}
-			main {
-				max-width: 1200px;
-				margin: 2rem auto;
-				padding: 1rem;
-				background: #fff;
+
+			.container {
+				max-width: 880px;
+				margin: 0 auto;
+				padding: 0 24px;
+			}
+
+			/* Header */
+			.topbar {
+				position: sticky;
+				top: 0;
+				z-index: 10;
+				background: color-mix(in srgb, var(--bg) 80%, transparent);
+				backdrop-filter: saturate(180%) blur(12px);
+				-webkit-backdrop-filter: saturate(180%) blur(12px);
+				border-bottom: 1px solid var(--border);
+			}
+
+			.topbar .container {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				height: 60px;
+				gap: 16px;
+			}
+
+			.brand {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				font-weight: 600;
+				color: var(--text);
+			}
+
+			.brand:hover {
+				text-decoration: none;
+			}
+
+			.brand svg {
+				color: var(--accent);
+			}
+
+			.nav {
+				display: flex;
+				gap: 4px;
+			}
+
+			.nav a {
+				color: var(--muted);
+				font-size: 14px;
+				font-weight: 500;
+				padding: 6px 12px;
 				border-radius: 8px;
-				box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+				transition:
+					color 0.15s,
+					background 0.15s;
 			}
+
+			.nav a:hover {
+				color: var(--text);
+				background: var(--surface-2);
+				text-decoration: none;
+			}
+
+			/* Hero */
+			.hero {
+				padding: 72px 0 48px;
+			}
+
+			.badge {
+				display: inline-block;
+				font-size: 12px;
+				font-weight: 600;
+				letter-spacing: 0.02em;
+				color: var(--accent);
+				background: var(--accent-soft);
+				padding: 4px 10px;
+				border-radius: 999px;
+				margin-bottom: 20px;
+			}
+
+			.hero h1 {
+				font-size: clamp(2rem, 5vw, 3rem);
+				line-height: 1.1;
+				letter-spacing: -0.03em;
+				margin: 0 0 16px;
+			}
+
+			.hero p {
+				font-size: 1.125rem;
+				color: var(--muted);
+				max-width: 600px;
+				margin: 0;
+			}
+
+			/* Sections */
 			section {
-				margin-bottom: 2rem;
+				padding: 40px 0;
+				border-top: 1px solid var(--border);
 			}
-			code {
-				background: #f4f4f9;
-				padding: 0.2rem 0.4rem;
-				border-radius: 4px;
+
+			h2 {
+				font-size: 1.5rem;
+				letter-spacing: -0.02em;
+				margin: 0 0 12px;
 			}
-			h1,
-			h2,
+
 			h3 {
-				color: #4caf50;
+				font-size: 1.05rem;
+				margin: 32px 0 8px;
 			}
-			footer {
-				text-align: center;
-				padding: 1rem;
-				background: #333;
+
+			p {
+				margin: 0 0 16px;
+			}
+
+			.lead {
+				color: var(--muted);
+			}
+
+			code {
+				font-family: var(--font-mono);
+				font-size: 0.875em;
+				background: var(--surface-2);
+				border: 1px solid var(--border);
+				padding: 0.1em 0.4em;
+				border-radius: 6px;
+			}
+
+			/* Endpoint card */
+			.endpoint {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: var(--radius);
+				padding: 14px 16px;
+				margin: 12px 0 16px;
+				font-family: var(--font-mono);
+				font-size: 14px;
+				overflow-x: auto;
+			}
+
+			.method {
+				font-size: 12px;
+				font-weight: 700;
+				color: var(--accent);
+				background: var(--accent-soft);
+				padding: 2px 8px;
+				border-radius: 6px;
+				flex-shrink: 0;
+			}
+
+			/* Code block */
+			.codeblock {
+				position: relative;
+				background: var(--code-bg);
+				color: var(--code-text);
+				border-radius: var(--radius);
+				padding: 16px 20px;
+				margin: 12px 0 16px;
+				font-family: var(--font-mono);
+				font-size: 13.5px;
+				line-height: 1.7;
+				overflow-x: auto;
+				white-space: pre;
+			}
+
+			.codeblock .c {
+				color: #71717a;
+			}
+
+			.copy {
+				position: absolute;
+				top: 10px;
+				right: 10px;
+				font: 500 12px var(--font-sans);
+				color: #a1a1aa;
+				background: rgba(255, 255, 255, 0.06);
+				border: 1px solid rgba(255, 255, 255, 0.1);
+				border-radius: 6px;
+				padding: 4px 10px;
+				cursor: pointer;
+				transition: color 0.15s;
+			}
+
+			.copy:hover {
 				color: #fff;
+			}
+
+			/* Param tables */
+			.table-wrap {
+				border: 1px solid var(--border);
+				border-radius: var(--radius);
+				overflow: hidden;
+				margin: 12px 0 24px;
+				background: var(--surface);
+			}
+
+			table {
+				width: 100%;
+				border-collapse: collapse;
+				font-size: 14px;
+			}
+
+			th,
+			td {
+				text-align: left;
+				padding: 12px 16px;
+				border-bottom: 1px solid var(--border);
+				vertical-align: top;
+			}
+
+			th {
+				font-size: 12px;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 0.04em;
+				color: var(--muted);
+				background: var(--surface-2);
+			}
+
+			tr:last-child td {
+				border-bottom: none;
+			}
+
+			td:first-child {
+				white-space: nowrap;
+				width: 1%;
+			}
+
+			.default {
+				display: inline-block;
+				font-size: 11px;
+				font-weight: 600;
+				color: var(--accent);
+				background: var(--accent-soft);
+				padding: 1px 8px;
+				border-radius: 999px;
+				margin-left: 6px;
+			}
+
+			/* Contact card */
+			.card {
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: var(--radius);
+				padding: 24px;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 16px;
+				flex-wrap: wrap;
+			}
+
+			.card p {
+				margin: 0;
+				color: var(--muted);
+			}
+
+			.button {
+				display: inline-flex;
+				align-items: center;
+				gap: 8px;
+				font-size: 14px;
+				font-weight: 500;
+				color: var(--bg);
+				background: var(--text);
+				padding: 10px 18px;
+				border-radius: 8px;
+				transition: opacity 0.15s;
+			}
+
+			.button:hover {
+				opacity: 0.85;
+				text-decoration: none;
+			}
+
+			footer {
+				border-top: 1px solid var(--border);
+				padding: 32px 0 48px;
+				color: var(--muted);
+				font-size: 14px;
+			}
+
+			footer .container {
+				display: flex;
+				justify-content: space-between;
+				gap: 16px;
+				flex-wrap: wrap;
+			}
+
+			footer a {
+				color: var(--muted);
+			}
+
+			@media (max-width: 600px) {
+				.container {
+					padding: 0 16px;
+				}
+
+				.nav a {
+					padding: 6px 8px;
+				}
+
+				.hero {
+					padding: 48px 0 32px;
+				}
+
+				th,
+				td {
+					padding: 10px 12px;
+				}
 			}
 		</style>
 	</head>
 	<body>
-		<header>
-			<h1>Image API</h1>
+		<header class="topbar">
+			<div class="container">
+				<a class="brand" href="/">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" /></svg>
+					Image API
+				</a>
+				<nav class="nav">
+					<a href="#usage">Usage</a>
+					<a href="#response">Response</a>
+					<a href="#contact">Contact</a>
+					<a target="_blank" rel="noopener" href="https://github.com/4msar/image-worker">GitHub</a>
+				</nav>
+			</div>
 		</header>
-		<nav>
-			<a href="#usage">Usage</a>
-			<a href="#contact">Contact</a>
-			<a target="_blank" href="http://github.com/4msar/image-worker">Github</a>
-		</nav>
-		<main>
-			<section id="usage">
-				<h2>Usage: Unsplash</h2>
 
+		<main class="container">
+			<div class="hero">
+				<span class="badge">Unsplash proxy</span>
+				<h1>Beautiful images,<br />one simple URL.</h1>
 				<p>
-					You can use all the available endpoints to get images from Unsplash by adding the
-					<code>/unsplash/</code> prefix to the endpoint.
+					Fetch photos from Unsplash and get them back as an image, JSON, a redirect, or a browser view. No API
+					key needed on your side.
+				</p>
+			</div>
+
+			<section id="usage">
+				<h2>Usage</h2>
+				<p class="lead">
+					Every Unsplash API endpoint is available. Add the <code>/unsplash/</code> prefix to the endpoint path.
 				</p>
 
 				<h3>Get a random image</h3>
+				<div class="endpoint">
+					<span class="method">GET</span>
+					<span>/unsplash/photos/random</span>
+				</div>
 				<p>
-					<code>GET /unsplash/photos/random</code>
-				</p>
-				<p>Get a random photo from Unsplash.</p>
-				<p>
-					Parameters: check in the unsplash API docs from
-					<a target="_blank" href="https://unsplash.com/documentation#photos">here</a>
+					Returns a random photo from Unsplash. All query parameters are passed through; see the
+					<a target="_blank" rel="noopener" href="https://unsplash.com/documentation#photos">Unsplash API docs</a>
+					for the full list.
 				</p>
 
-				<hr />
-				<h2>Common Response Type</h2>
+				<div class="codeblock"><button class="copy" type="button">Copy</button><span class="c"># Random landscape photo, small size, as JSON</span>
+/unsplash/photos/random?query=nature&amp;orientation=landscape&amp;size=small&amp;type=json
 
-				<p>
-					You can easily get the response as your desired format by adding the <code>type</code> parameter to
-					the request.
-				</p>
-				<ul>
-					<li><code>type=json</code>: Get the response in JSON format.</li>
-					<li><code>type=image</code>: Get the response in image format. <b>(Default)</b></li>
-					<li><code>type=view</code>: View the image in the browser.</li>
-					<li><code>type=redirect</code>: Redirect to the image URL.</li>
-				</ul>
+<span class="c"># Drop it straight into an &lt;img&gt; tag</span>
+&lt;img src="/unsplash/photos/random?query=mountains" /&gt;</div>
+			</section>
 
-				<p>You can also provide the <code>size</code> to get the image on specific size.</p>
-				<ul>
-					<li><code>size=regular</code>: Get the regular size image <b>(Default)</b></li>
-					<li><code>size=raw</code>: Get the raw size image</li>
-					<li><code>size=small</code>: Get the small size image</li>
-					<li><code>size=thumb</code>: Get the thumbnail size image</li>
-					<li><code>size=full</code>: Get the full size image</li>
-					<li><code>size=small_s3</code>: Get the most small size image</li>
-				</ul>
+			<section id="response">
+				<h2>Response options</h2>
+				<p class="lead">These parameters work on every endpoint.</p>
+
+				<h3>Format: <code>type</code></h3>
+				<div class="table-wrap">
+					<table>
+						<thead>
+							<tr>
+								<th>Value</th>
+								<th>Description</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><code>image</code><span class="default">default</span></td>
+								<td>Returns the image file itself.</td>
+							</tr>
+							<tr>
+								<td><code>json</code></td>
+								<td>Returns the response as JSON.</td>
+							</tr>
+							<tr>
+								<td><code>view</code></td>
+								<td>Shows the image in the browser.</td>
+							</tr>
+							<tr>
+								<td><code>redirect</code></td>
+								<td>Redirects to the image URL.</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<h3>Size: <code>size</code></h3>
+				<div class="table-wrap">
+					<table>
+						<thead>
+							<tr>
+								<th>Value</th>
+								<th>Description</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><code>regular</code><span class="default">default</span></td>
+								<td>Regular size image.</td>
+							</tr>
+							<tr>
+								<td><code>raw</code></td>
+								<td>Raw, unprocessed image.</td>
+							</tr>
+							<tr>
+								<td><code>full</code></td>
+								<td>Full size image.</td>
+							</tr>
+							<tr>
+								<td><code>small</code></td>
+								<td>Small size image.</td>
+							</tr>
+							<tr>
+								<td><code>thumb</code></td>
+								<td>Thumbnail size image.</td>
+							</tr>
+							<tr>
+								<td><code>small_s3</code></td>
+								<td>The smallest available size.</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 			</section>
 
 			<section id="contact">
 				<h2>Contact</h2>
-				<p>
-					For further assistance, please contact me from
-					<a target="_blank" href="http://msar.me/contact">here</a>.
-				</p>
+				<div class="card">
+					<p>Questions or need help? Get in touch.</p>
+					<a class="button" target="_blank" rel="noopener" href="https://msar.me/contact">Contact me &rarr;</a>
+				</div>
 			</section>
 		</main>
+
 		<footer>
-			<p>&copy; Image API. All rights reserved.</p>
+			<div class="container">
+				<span>&copy; Image API</span>
+				<a target="_blank" rel="noopener" href="https://github.com/4msar/image-worker">View source on GitHub</a>
+			</div>
 		</footer>
+
+		<script>
+			document.querySelectorAll('.copy').forEach((btn) => {
+				btn.addEventListener('click', () => {
+					const text = btn.parentElement.innerText.replace(btn.innerText, '').trim();
+					navigator.clipboard.writeText(text).then(() => {
+						btn.textContent = 'Copied';
+						setTimeout(() => (btn.textContent = 'Copy'), 1500);
+					});
+				});
+			});
+		</script>
 	</body>
 </html>
