@@ -2,6 +2,8 @@
 
 A Cloudflare Worker built with [Hono](https://hono.dev) that fetches images from several free photo providers behind one API.
 
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/4msar/image-worker)
+
 ## Providers
 
 | Id          | Provider                                    | Access  | Env var               |
