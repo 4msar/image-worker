@@ -18,13 +18,16 @@ Open providers are always on. An API provider is enabled only when its key is se
 
 ## Routes
 
-| Route                    | Description                                   |
-| ------------------------ | --------------------------------------------- |
-| `/`                      | Docs page, listing the available providers    |
-| `/providers`             | Available providers as JSON                   |
-| `/{provider}/random`     | A random image                                |
-| `/{provider}/search`     | Search results as JSON, same shape everywhere |
-| `/{provider}/photos/:id` | A single image by id                          |
+| Route                    | Description                                               |
+| ------------------------ | --------------------------------------------------------- |
+| `/`                      | Docs page, listing the available providers                |
+| `/providers`             | Available providers as JSON                               |
+| `/llms.txt`              | API summary for LLMs ([llmstxt.org](https://llmstxt.org)) |
+| `/{provider}/random`     | A random image                                            |
+| `/{provider}/search`     | Search results as JSON, same shape everywhere             |
+| `/{provider}/photos/:id` | A single image by id                                      |
+
+All routes send `Access-Control-Allow-Origin: *`, so browsers can call the API from any site.
 
 Shared query parameters: `query` (or `q`), `orientation` (`landscape`, `portrait`, `squarish`), `page`, `per_page`, `size` (`raw`, `full`, `regular`, `small`, `thumb`) and `type` (`image`, `json`, `view`, `redirect`).
 

@@ -32,7 +32,32 @@ describe('image worker', () => {
 
 	it('serves robots.txt that keeps crawlers on the docs page', async () => {
 		const response = await exports.default.fetch('https://example.com/robots.txt');
-		expect(await response.text()).toBe('User-agent: *\nAllow: /$\nDisallow: /\n');
+		expect(await response.text()).toBe('User-agent: *\nAllow: /$\nAllow: /llms.txt\nDisallow: /\n');
+	});
+
+	it('serves llms.txt listing available providers', async () => {
+		const response = await exports.default.fetch('https://images.example.com/llms.txt');
+		expect(response.headers.get('content-type')).toContain('text/plain');
+		const text = await response.text();
+		expect(text).toMatch(/^# Image API\n/);
+		expect(text).toContain('https://images.example.com/picsum/random');
+		expect(text).not.toContain('(`pexels`)');
+	});
+
+	it('allows CORS from any origin', async () => {
+		const response = await exports.default.fetch('https://example.com/providers', {
+			headers: { origin: 'https://other.example' },
+		});
+		expect(response.headers.get('access-control-allow-origin')).toBe('*');
+	});
+
+	it('answers CORS preflight requests', async () => {
+		const response = await exports.default.fetch('https://example.com/picsum/random', {
+			method: 'OPTIONS',
+			headers: { origin: 'https://other.example', 'access-control-request-method': 'GET' },
+		});
+		expect(response.status).toBe(204);
+		expect(response.headers.get('access-control-allow-origin')).toBe('*');
 	});
 
 	it('rejects non-GET requests (integration style)', async () => {

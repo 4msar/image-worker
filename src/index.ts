@@ -1,11 +1,16 @@
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 import { HTTPException } from 'hono/http-exception';
 import { renderDocs } from './docs';
+import { renderLlms } from './llms';
 import { availableProviders, providers } from './providers';
 import type { AppEnv } from './providers/types';
 import { providerRoutes } from './routes';
 
 const app = new Hono<AppEnv>();
+
+// Open to every origin; also answers OPTIONS preflights before the method check below.
+app.use('*', cors({ origin: '*', allowMethods: ['GET', 'HEAD', 'OPTIONS'] }));
 
 app.use('*', async (c, next) => {
 	if (c.req.method !== 'GET' && c.req.method !== 'HEAD') {
@@ -17,7 +22,9 @@ app.use('*', async (c, next) => {
 app.get('/', (c) => c.html(renderDocs(availableProviders(c.env), new URL(c.req.url).origin)));
 
 // Let crawlers index the docs, but keep them off the image routes so they don't burn API quota.
-app.get('/robots.txt', (c) => c.text('User-agent: *\nAllow: /$\nDisallow: /\n'));
+app.get('/robots.txt', (c) => c.text('User-agent: *\nAllow: /$\nAllow: /llms.txt\nDisallow: /\n'));
+
+app.get('/llms.txt', (c) => c.text(renderLlms(availableProviders(c.env), new URL(c.req.url).origin)));
 
 app.get('/providers', (c) =>
 	c.json(
