@@ -134,3 +134,42 @@ describe('unsplash passthrough', () => {
 		expect((await exports.default.fetch('https://example.com/photos')).status).toBe(404);
 	});
 });
+
+describe('rate limiting', () => {
+	const limitedEnv = (success: boolean, keys: string[] = []) => ({
+		...env,
+		RATE_LIMITER: {
+			limit: async ({ key }: { key: string }) => {
+				keys.push(key);
+				return { success };
+			},
+		},
+	});
+
+	it('returns 429 with Retry-After once a client hits the limit', async () => {
+		const request = new IncomingRequest('https://example.com/picsum/random', {
+			headers: { 'cf-connecting-ip': '203.0.113.7' },
+		});
+		const response = await app.fetch(request, limitedEnv(false), createExecutionContext());
+		expect(response.status).toBe(429);
+		expect(response.headers.get('retry-after')).toBe('60');
+		expect(await response.json()).toEqual({ error: 'Too Many Requests' });
+	});
+
+	it('keys the limit by provider and client IP', async () => {
+		const keys: string[] = [];
+		const request = new IncomingRequest('https://example.com/unsplash/search', {
+			headers: { 'cf-connecting-ip': '203.0.113.7' },
+		});
+		await app.fetch(request, limitedEnv(true, keys), createExecutionContext());
+		expect(keys).toEqual(['unsplash:203.0.113.7']);
+	});
+
+	it('does not limit docs or unconfigured providers', async () => {
+		const keys: string[] = [];
+		const limited = limitedEnv(false, keys);
+		expect((await app.fetch(new IncomingRequest('https://example.com/providers'), limited)).status).toBe(200);
+		expect((await app.fetch(new IncomingRequest('https://example.com/pexels/random'), limited)).status).toBe(404);
+		expect(keys).toEqual([]);
+	});
+});

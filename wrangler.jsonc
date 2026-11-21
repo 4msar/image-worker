@@ -5,7 +5,16 @@
 	"compatibility_date": "2026-10-01",
 	"observability": {
 		"enabled": true
-	}
+	},
+	// Per-client limit on every provider route, counted separately for each provider.
+	// Cloudflare's rate limiting binding only accepts a period of 10 or 60 seconds.
+	"ratelimits": [
+		{
+			"name": "RATE_LIMITER",
+			"namespace_id": "1001",
+			"simple": { "limit": 60, "period": 60 }
+		}
+	]
 	// Optional secrets, one per API provider: UNSPLASH_ACCESS_KEY, PEXELS_API_KEY, PIXABAY_API_KEY.
 	// Set them with `npx wrangler secret put <NAME>`; a provider without its key is hidden.
 	// For local dev, copy .dev.vars.example to .dev.vars and fill in the keys.

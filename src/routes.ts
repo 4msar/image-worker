@@ -1,5 +1,6 @@
 import { Hono, type Context } from 'hono';
 import { clamp } from './lib/http';
+import { rateLimit } from './lib/rate-limit';
 import { getResponseType, getSize, sendImage } from './lib/respond';
 import { isConfigured } from './providers';
 import type { AppEnv, Orientation, Params, Provider } from './providers/types';
@@ -32,6 +33,9 @@ export const providerRoutes = (provider: Provider) => {
 		if (!isConfigured(provider, c.env)) return c.notFound();
 		await next();
 	});
+
+	// Registered before provider.routes so provider-specific routes are limited too.
+	app.use('*', rateLimit(provider.id));
 
 	provider.routes?.(app);
 

@@ -41,6 +41,8 @@ Copy `.dev.vars.example` to `.dev.vars` for local development and fill in the ke
 npx wrangler secret put PEXELS_API_KEY
 ```
 
+Provider routes are rate limited per client IP and per provider (60 requests a minute by default) using Cloudflare's [rate limiting binding](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/). Clients over the limit get a `429` with a `Retry-After` header. Change `limit` under `ratelimits` in `wrangler.jsonc` to adjust it.
+
 ## Development
 
 ```bash
